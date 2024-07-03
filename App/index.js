@@ -1,53 +1,107 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+// Filename: index.js
+// Combined code from all files
 
-const App = () => {
-  const fullText = 'Hi, this is Apply.\nCreating mobile apps is now as simple as typing text.\nJust input your idea and press APPLY, and our platform does the rest...';
-  const [displayedText, setDisplayedText] = useState('');
-  const [index, setIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+import React from 'react';
+import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
-  useEffect(() => {
-    if (isPaused) return;
+const Stack = createStackNavigator();
 
-    const interval = setInterval(() => {
-      setDisplayedText((prev) => prev + fullText[index]);
-      setIndex((prev) => {
-        if (prev === fullText.length - 1) {
-          setIsPaused(true);
-          setTimeout(() => {
-            setDisplayedText('');
-            setIndex(0);
-            setIsPaused(false);
-          }, 2000);
-          return 0;
-        }
-        return prev + 1;
-      });
-    }, 100);
+const tales = [
+    { id: '1', title: 'The Little Red Riding Hood', tale: 'Once upon a time...', imageUrl: 'https://picsum.photos/300/200' },
+    { id: '2', title: 'Cinderella', tale: 'Once upon a time...', imageUrl: 'https://picsum.photos/300/200' },
+];
 
-    return () => clearInterval(interval);
-  }, [index, isPaused]);
+function HomeScreen({ navigation }) {
+    return (
+        <View style={HomeScreenStyles.container}>
+            <Text style={HomeScreenStyles.title}>Kids Tales</Text>
+            {tales.map(tale => (
+                <TouchableOpacity
+                    key={tale.id}
+                    style={HomeScreenStyles.button}
+                    onPress={() => navigation.navigate('Tale', { tale })}
+                >
+                    <Text style={HomeScreenStyles.buttonText}>{tale.title}</Text>
+                </TouchableOpacity>
+            ))}
+        </View>
+    );
+}
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>{displayedText}</Text>
-    </View>
-  );
-};
+function TaleScreen({ route }) {
+    const { tale } = route.params;
+
+    return (
+        <SafeAreaView style={TaleScreenStyles.container}>
+            <Text style={TaleScreenStyles.title}>{tale.title}</Text>
+            <Image source={{ uri: tale.imageUrl }} style={TaleScreenStyles.image} />
+            <Text style={TaleScreenStyles.taleText}>{tale.tale}</Text>
+        </SafeAreaView>
+    );
+}
+
+export default function App() {
+    return (
+        <NavigationContainer>
+            <Stack.Navigator initialRouteName="Home">
+                <Stack.Screen name="Home" component={HomeScreen} />
+                <Stack.Screen name="Tale" component={TaleScreen} />
+            </Stack.Navigator>
+        </NavigationContainer>
+    );
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'black',
-    padding: 20,
-  },
-  text: {
-    color: 'white',
-    fontSize: 24,
-    fontFamily: 'monospace',
-  },
+    container: {
+        flex: 1,
+        marginTop: 20,
+    },
 });
 
-export default App;
+const HomeScreenStyles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+    },
+    button: {
+        marginTop: 20,
+        backgroundColor: '#4CAF50',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 5,
+    },
+    buttonText: {
+        color: '#FFF',
+        fontSize: 18,
+    },
+});
+
+const TaleScreenStyles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 20,
+    },
+    taleText: {
+        fontSize: 18,
+        marginBottom: 20,
+    },
+    image: {
+        width: 300,
+        height: 200,
+        borderRadius: 10,
+    },
+});
